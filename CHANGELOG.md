@@ -29,7 +29,7 @@ First public release.
 - **`session_manager` agent tool** exposing the same operations to an agent,
   with `confirm=true` required for delete.
 - Locale dictionaries for English and Chinese, with an English fallback.
-- 25 automated checks across the host and client halves.
+- 55 automated checks across the manifest, host and client halves.
 
 ### Notes
 

@@ -624,8 +624,11 @@ export function mount(ctx) {
  * Deletion is destructive and irreversible, so the tool requires an explicit
  * `confirm: true` and refuses live sessions — the same two guards the page
  * enforces. Listing is read-only and free of side effects.
+ *
+ * Exported so its schema and guards can be asserted directly, rather than only
+ * through a live host.
  */
-function registerTool(host, disposers) {
+export function registerTool(host, disposers) {
   const tools = host.get('tools')
   if (!tools || typeof tools.register !== 'function') return
 

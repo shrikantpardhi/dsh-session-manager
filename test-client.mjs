@@ -188,6 +188,110 @@ function expand(node) {
   return node
 }
 
+/* ------------------------------------------------------------- locale */
+
+/**
+ * Build a `ctx` whose locale service is under test control, so the
+ * translator's fallback behaviour can be asserted without a real locale host.
+ */
+function runBundleWithLocale(localeImpl) {
+  const React = stubReact()
+  const registrations = []
+  const localeCalls = []
+  let applied = null
+
+  const slots = {
+    inject(slot, callback) { if (slot === 'settings.section') callback() },
+    register(meta, render) { registrations.push({ meta, render }); return () => {} },
+  }
+
+  const locale = typeof localeImpl === 'function'
+    ? localeImpl(localeCalls)
+    : {
+        register(namespace, lang, dict) { localeCalls.push({ namespace, lang, size: Object.keys(dict).length }) },
+        bind: (namespace) => (key) => `${namespace}:${key}`,
+      }
+
+  const ctx = {
+    get(name) {
+      if (name === 'slots') return slots
+      if (name === 'locale') return locale
+      return undefined
+    },
+    slots,
+    effect(cb) { if (typeof cb === 'function') cb() },
+  }
+
+  const window = {
+    __ModuleLoader__: {
+      load({ factory }) {
+        applied = factory((name) => {
+          if (name === 'react') return React
+          throw new Error(`unexpected require(${name})`)
+        })
+      },
+    },
+  }
+
+  const fn = new Function('window', 'document', 'fetch', `${source}\n`)
+  fn(window, undefined, async () => { throw new Error('fetch is not expected') })
+  applied.apply(ctx)
+  return { exports: applied, registrations, localeCalls, slots }
+}
+
+check('locale dictionaries are registered for en and zh', () => {
+  const { localeCalls } = runBundleWithLocale()
+  const langs = localeCalls.map((call) => call.lang).sort()
+  assert.deepEqual(langs, ['en', 'zh'], 'both dictionaries should be registered')
+  for (const call of localeCalls) {
+    assert.equal(call.namespace, 'dsh-session-manager')
+    assert.ok(call.size > 20, `dictionary ${call.lang} looks too small (${call.size} keys)`)
+  }
+})
+
+check('section label comes from the locale service when bound', () => {
+  const { registrations } = runBundleWithLocale()
+  assert.equal(registrations[0].meta.label(), 'dsh-session-manager:title')
+})
+
+check('section falls back to English when the locale service is absent', () => {
+  // A host with no locale service at all: the page must still read correctly.
+  const { registrations } = runBundleWithLocale(() => undefined)
+  assert.equal(registrations[0].meta.label(), 'Sessions')
+})
+
+check('section falls back when the locale service throws on bind', () => {
+  const { registrations } = runBundleWithLocale(() => ({
+    register() {},
+    bind() { throw new Error('locale exploded') },
+  }))
+  assert.equal(registrations[0].meta.label(), 'Sessions', 'a throwing locale service must not blank the page')
+})
+
+check('a translation identical to its key falls back to English', () => {
+  // Echoing the key means "no translation"; showing the raw key would be worse
+  // than the English default.
+  const { registrations } = runBundleWithLocale(() => ({
+    register() {},
+    bind: () => (key) => key,
+  }))
+  assert.equal(registrations[0].meta.label(), 'Sessions')
+})
+
+check('render tree carries the translated text through', () => {
+  const { registrations } = runBundleWithLocale()
+  const tree = expand(registrations[0].render())
+  assert.match(collectText(tree), /dsh-session-manager:title/)
+})
+
+check('shipped locale files carry display metadata', () => {
+  const en = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'locale', 'en.json'), 'utf8'))
+  const zh = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'locale', 'zh.json'), 'utf8'))
+  assert.equal(en.meta.title, 'Session Manager')
+  assert.equal(zh.meta.title, '会话管理')
+  assert.ok(en.section.title && zh.section.title, 'both files need a section title')
+})
+
 /* --------------------------------------------------------------- report */
 
 const failed = results.filter((ok) => !ok).length
