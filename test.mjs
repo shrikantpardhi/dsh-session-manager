@@ -245,6 +245,87 @@ await check('state still renders with no registry and no sessionQuery', async ()
   assert.equal(state.totals.count, state.sessions.length)
 })
 
+/* ------------------------------------------------ agent tool (registerTool) */
+
+/** Capture the tool definition the plugin registers, without a live host. */
+function captureTool(hostOverrides) {
+  const registered = []
+  const disposers = []
+  const toolHost = {
+    get(name) {
+      if (name === 'tools') {
+        return { register: (definition) => { registered.push(definition); return () => {} } }
+      }
+      return host.get(name)
+    },
+    ...hostOverrides,
+  }
+  plugin.registerTool(toolHost, disposers)
+  return { tool: registered[0], registered, disposers }
+}
+
+await check('tool registers a schema with the expected shape', () => {
+  const { tool } = captureTool()
+  assert.ok(tool, 'no tool was registered')
+  assert.equal(tool.name, 'session_manager')
+  assert.match(tool.description, /confirm/i, 'description must warn that delete needs confirmation')
+  const props = tool.parameters.properties
+  assert.deepEqual(Object.keys(props).sort(), ['action', 'confirm', 'sessionIds'])
+  assert.deepEqual(tool.parameters.required, ['action'])
+  assert.deepEqual(props.action.enum, ['list', 'archive', 'unarchive', 'pin', 'unpin', 'delete'])
+})
+
+await check('tool registers nothing when the host has no tools service', () => {
+  const disposers = []
+  plugin.registerTool({ get: () => undefined }, disposers)
+  assert.equal(disposers.length, 0)
+})
+
+await check('tool registration failure is swallowed, not thrown', () => {
+  const disposers = []
+  const throwing = { get: (name) => (name === 'tools' ? { register: () => { throw new Error('boom') } } : undefined) }
+  assert.doesNotThrow(() => plugin.registerTool(throwing, disposers))
+  assert.equal(disposers.length, 0)
+})
+
+await check('tool refuses delete without confirm=true', async () => {
+  const { tool } = captureTool()
+  await assert.rejects(
+    () => tool.execute({ action: 'delete', sessionIds: [SESSION_A] }),
+    /confirm=true/,
+    'delete without confirm must be rejected',
+  )
+})
+
+await check('tool refuses an action with no sessionIds', async () => {
+  const { tool } = captureTool()
+  await assert.rejects(() => tool.execute({ action: 'archive', sessionIds: [] }), /sessionIds is required/)
+})
+
+await check('tool list is read-only and reports totals', async () => {
+  const { tool } = captureTool()
+  const before = fs.readdirSync(groupDir).length
+  const result = await tool.execute({ action: 'list' })
+  assert.ok(Array.isArray(result.sessions), 'list must return a sessions array')
+  assert.equal(typeof result.totals.count, 'number')
+  assert.equal(fs.readdirSync(groupDir).length, before, 'list must not create or remove session directories')
+})
+
+await check('tool delete with confirm=true delegates to performAction', async () => {
+  const { tool } = captureTool()
+  const result = await tool.execute({ action: 'delete', sessionIds: ['session-does-not-exist'], confirm: true })
+  assert.equal(result.action, 'delete')
+  assert.equal(result.ok, true, `unexpected failure: ${JSON.stringify(result.results)}`)
+  assert.equal(result.results.length, 1)
+})
+
+await check('tool archive reaches the workspace registry', async () => {
+  const { tool } = captureTool()
+  const before = archiveCalls.length
+  await tool.execute({ action: 'archive', sessionIds: [SESSION_LIVE] })
+  assert.equal(archiveCalls.length, before + 1, 'archive was not delegated')
+})
+
 /* --------------------------------------------------------------- report */
 
 await fsp.rm(home, { recursive: true, force: true })

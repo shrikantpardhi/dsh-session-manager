@@ -190,7 +190,7 @@ Design notes:
 
 ```bash
 npm run check     # syntax + manifest validation + both test suites
-npm test          # 15 host checks + 10 client checks
+npm test          # 23 host checks + 17 client checks
 npm run validate  # manifest is publishable
 ```
 
