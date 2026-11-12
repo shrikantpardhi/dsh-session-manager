@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # `engines.node` declares ^22.19.0 || >=24; both ends are exercised.
+        node: ['22.x', '24.x']
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Syntax check
+        run: |
+          node --check index.js
+          node --check client.js
+
+      - name: Validate manifest
+        run: node scripts/validate-manifest.mjs
+
+      - name: Host contract tests
+        run: node test.mjs
+
+      - name: Client bundle tests
+        run: node test-client.mjs
+
+      - name: Packed file list
+        run: npm pack --dry-run

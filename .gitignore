@@ -1,0 +1,19 @@
+# Dependencies (this plugin has none, but local runs may create these)
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+
+# Logs and OS noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editor and tooling
+.idea/
+.vscode/
+*.swp
+
+# Test and coverage output
+coverage/
+tmp/

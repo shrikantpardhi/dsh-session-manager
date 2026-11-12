@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "title": "会话管理",
+    "description": "在设置中归档、置顶或永久删除聊天会话，支持批量操作与磁盘占用统计。"
+  },
+  "section": {
+    "title": "会话",
+    "subtitle": "归档可整理侧边栏，删除将移除已保存的消息。",
+    "refresh": "刷新",
+    "search": "搜索标题、工作区或 ID",
+    "selectAll": "全选",
+    "clearSelection": "清除",
+    "selected": "已选择 {count} 项",
+    "empty": "还没有会话。开始对话后会显示在这里。",
+    "noMatch": "没有符合筛选条件的会话。",
+    "loading": "正在加载会话…"
+  },
+  "stat": {
+    "sessions": "会话",
+    "archived": "已归档",
+    "pinned": "已置顶",
+    "onDisk": "磁盘占用"
+  },
+  "filter": {
+    "all": "全部",
+    "open": "进行中",
+    "archived": "已归档",
+    "pinned": "已置顶"
+  },
+  "action": {
+    "archive": "归档",
+    "unarchive": "取消归档",
+    "pin": "置顶",
+    "unpin": "取消置顶",
+    "delete": "删除",
+    "deleteAllArchived": "删除全部已归档（{count}）"
+  },
+  "badge": {
+    "live": "运行中",
+    "archived": "已归档",
+    "pinned": "已置顶",
+    "orphan": "文件缺失"
+  },
+  "confirm": {
+    "title": "永久删除？",
+    "body": "这会从磁盘移除{target}及其已保存的消息。归档只隐藏会话，删除无法撤销。",
+    "one": "该会话",
+    "many": "这 {count} 个会话",
+    "detail": "约可释放 {size}。",
+    "cancel": "取消",
+    "confirm": "永久删除"
+  },
+  "result": {
+    "archived": "已归档 {count} 个会话。",
+    "unarchived": "已取消归档 {count} 个会话。",
+    "pinned": "已置顶 {count} 个会话。",
+    "unpinned": "已取消置顶 {count} 个会话。",
+    "deleted": "已删除 {count} 个会话，并从磁盘移除。",
+    "failed": "{action} 失败：{total} 个中有 {failed} 个，{error}",
+    "liveBlocked": "所选会话中有正在运行的会话，请先停止再删除。"
+  },
+  "error": {
+    "load": "无法加载会话：{error}"
+  }
+}

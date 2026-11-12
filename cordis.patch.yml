@@ -1,0 +1,9 @@
+# Bundle patch for dsh-session-manager.
+#
+# A bare `- id:` row overrides an existing loader entry; `- insert:` declares
+# new ones. This package has a single entry: the host half, whose module is the
+# package main. The client half is advertised separately through the `dsh.client`
+# field of package.json, so it needs no row of its own here.
+- insert:
+    - id: dsh-session-manager
+      name: 'dsh-session-manager'

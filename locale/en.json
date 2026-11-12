@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "title": "Session Manager",
+    "description": "Archive, pin and permanently delete chat sessions from Settings, with bulk actions and disk-usage totals."
+  },
+  "section": {
+    "title": "Sessions",
+    "subtitle": "Archive a chat to tidy the sidebar, or delete it to remove its stored messages.",
+    "refresh": "Refresh",
+    "search": "Search title, workspace or id",
+    "selectAll": "Select all",
+    "clearSelection": "Clear",
+    "selected": "{count} selected",
+    "empty": "No sessions yet. Start a conversation and it will appear here.",
+    "noMatch": "No sessions match this filter.",
+    "loading": "Loading sessions…"
+  },
+  "stat": {
+    "sessions": "Sessions",
+    "archived": "Archived",
+    "pinned": "Pinned",
+    "onDisk": "On disk"
+  },
+  "filter": {
+    "all": "All",
+    "open": "Active",
+    "archived": "Archived",
+    "pinned": "Pinned"
+  },
+  "action": {
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "delete": "Delete",
+    "deleteAllArchived": "Delete all archived ({count})"
+  },
+  "badge": {
+    "live": "Running",
+    "archived": "Archived",
+    "pinned": "Pinned",
+    "orphan": "Missing files"
+  },
+  "confirm": {
+    "title": "Delete permanently?",
+    "body": "This removes {target} and its stored messages from disk. Archiving keeps a chat; deleting cannot be undone.",
+    "one": "this session",
+    "many": "these {count} sessions",
+    "detail": "About {size} will be freed.",
+    "cancel": "Cancel",
+    "confirm": "Delete permanently"
+  },
+  "result": {
+    "archived": "Archived {count} session(s).",
+    "unarchived": "Unarchived {count} session(s).",
+    "pinned": "Pinned {count} session(s).",
+    "unpinned": "Unpinned {count} session(s).",
+    "deleted": "Deleted {count} session(s). Removed from disk.",
+    "failed": "{action} failed for {failed} of {total}: {error}",
+    "liveBlocked": "One of the selected sessions is running. Stop it before deleting."
+  },
+  "error": {
+    "load": "Could not load sessions: {error}"
+  }
+}

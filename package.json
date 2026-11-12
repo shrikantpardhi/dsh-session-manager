@@ -1,0 +1,74 @@
+{
+  "name": "dsh-session-manager",
+  "version": "1.0.0",
+  "description": "DeepSeek Harness plugin: archive, pin and permanently delete chat sessions from Settings, with bulk actions and disk-usage totals.",
+  "private": false,
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/en.json",
+    "locale/zh.json",
+    "icon.svg",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24"
+  },
+  "scripts": {
+    "test": "node test.mjs && node test-client.mjs",
+    "test:host": "node test.mjs",
+    "test:client": "node test-client.mjs",
+    "validate": "node scripts/validate-manifest.mjs",
+    "check": "node --check index.js && node --check client.js && npm run validate && npm test",
+    "prepublishOnly": "npm run check"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "deepseek",
+    "sessions",
+    "session-manager",
+    "archive",
+    "pin",
+    "cleanup",
+    "storage",
+    "settings"
+  ],
+  "author": "Shrikant Pardhi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shrikantpardhi/dsh-session-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shrikantpardhi/dsh-session-manager/issues"
+  },
+  "homepage": "https://github.com/shrikantpardhi/dsh-session-manager#readme",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-theme"
+      ]
+    }
+  }
+}
