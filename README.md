@@ -57,14 +57,25 @@ you. **Do not** hand-edit the profile's `package.json` or `cordis.patch.yml`,
 and do not run a package manager inside the profile directory — the installer
 owns those files, and manual edits can desynchronise the bundle from its rows.
 
-### From npm
+### Install straight from GitHub
+
+The repository is a working package on its own, so npm can install it directly
+without a registry release:
 
 ```bash
-npm install --global dsh-session-manager
+npm install --global github:shrikantpardhi/dsh-session-manager
 ```
 
 Then install that directory as a bundle with `install_bundle`, pointing
 `target` at it.
+
+### From npm
+
+> **Not published to npm yet.** The name `dsh-session-manager` is currently
+> held by an unrelated project on the public registry, so
+> `npm install dsh-session-manager` would install **someone else's** package.
+> Until this plugin is published under a free name, use the GitHub install
+> above. See [Publishing](#publishing) for the rename needed.
 
 ### After installing
 
@@ -189,6 +200,57 @@ temporary `$DSH_HOME`, so they never touch real sessions.
 `npm run validate` enforces the publishing contract: a resolvable
 `exports["./client"]`, a complete `files` list, locale metadata, and an icon
 within size limits. CI runs it on Node 22 and 24 across Linux and Windows.
+
+## Publishing
+
+Installing from GitHub works today. Publishing to npm needs one decision first.
+
+### The name is taken
+
+The public registry already has an unrelated **`dsh-session-manager`** at
+v0.7.5 (a different project by a different author). Publishing under that name
+is impossible, and `npm install dsh-session-manager` installs *that* package,
+not this one.
+
+Pick a free, scoped name — a scope you own is the durable choice:
+
+| Candidate | Status |
+|---|---|
+| `dsh-session-manager` | **taken** (v0.7.5, unrelated) |
+| `dsh-session-cleaner` | **taken** (v1.0.2) |
+| `@shrikantpardhi/dsh-session-manager` | free — a scope you own |
+| `dsh-sessions` | free |
+| `dsh-plugin-session-manager` | free |
+
+A scoped name costs nothing and cannot be squatted later, so it is the
+recommended option. Renaming means updating `name`, `repository`, `bugs`,
+`homepage`, the patch row in `cordis.patch.yml`, the bundle id, the route base
+and the locale namespace — then `npm run check`.
+
+### Release steps
+
+```bash
+npm login                      # once, as the scope owner
+npm run check                  # must be green before publishing
+npm publish --access public    # --access public is required for a scoped name
+```
+
+`prepublishOnly` runs `npm run check`, so a broken manifest or a failing test
+cannot be published. After publishing, tag the release and paste the notes:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Then create a GitHub Release with `gh release create v1.0.0 --notes-from-tag`
+and keep [CHANGELOG.md](CHANGELOG.md) current.
+
+### Versioning
+
+Follow semantic versioning. The plugin's public surface is the Settings page,
+the `session_manager` tool name and its arguments, and the three HTTP routes;
+changing any of those is a breaking change.
 
 ## Contributing
 
